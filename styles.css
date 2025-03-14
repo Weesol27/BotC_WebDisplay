@@ -1,0 +1,411 @@
+@keyframes tickerScroll {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+/* Overall Dark Theme */
+body {
+    background-color: #1B1B1B;
+    color: #EDEDED;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header styling */
+#header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Logo and Venue Logo */
+#logo, #venueLogo {
+    height: 10rem;
+    width: auto;
+    margin: 0 10px;
+}
+
+/* Countdown Timer */
+#countdown {
+    font-size: 10rem;
+    font-weight: bold;
+    color: #D72638;
+    text-align: center;
+    flex-grow: 1;
+    line-height: 10rem;
+}
+
+/* Controls styling */
+#controls {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+.left-controls {
+    display: flex;
+    align-items: center;
+}
+
+.right-controls {
+    display: flex;
+    align-items: center;
+}
+
+/* Lists Container */
+#listsContainer {
+    display: none; /* Shown after valid JSON is selected */
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    border: 4px solid #5A0002;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Fables, Jinxes, Travellers containers */
+#fablesList, #jinxList, #travellersList {
+    flex: 1;
+    padding: 10px;
+    background-color: #252525;
+    border: 2px solid #D72638;
+    box-sizing: border-box;
+}
+
+/* List table styling */
+.list-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Alternating row backgrounds */
+.list-table tr.even {
+    background-color: #3A3A3A;
+}
+.list-table tr.odd {
+    background-color: #2A2A2A;
+}
+
+/* Table cells */
+.list-table th,
+.list-table td {
+    padding: 10px;
+    vertical-align: middle;
+    border: 1px solid #5A0002;
+}
+
+/* Name column styling: only as wide as necessary */
+.list-table .name {
+    font-weight: bold;
+    color: #D72638;
+    white-space: nowrap;
+    width: 1%;
+}
+
+/* Text column styling */
+.list-table .text {
+    width: auto;
+}
+
+/* Button styling */
+button {
+    background-color: #7D0205;
+    color: #FFFFFF;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 5px;
+}
+button:hover {
+    background-color: #D72638;
+}
+button:disabled {
+    background-color: #555; /* Darker background */
+    color: #aaa; /* Light gray text */
+    cursor: not-allowed; /* Show not-allowed cursor */
+    opacity: 0.6; /* Make it look faded */
+}
+
+/* Player Count Table Container */
+#playerCountTableContainer {
+    margin-top: 20px;
+}
+
+/* Player Count Table Styles */
+.player-count-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+.player-count-table th,
+.player-count-table td {
+    border: 0px solid #FFF2D7;
+    padding: 8px 12px;
+    text-align: center;
+}
+
+/* Grey out columns by default */
+.player-count-table th,
+.player-count-table td {
+    color: #999;
+}
+
+/* Active column styling */
+.player-count-table th.active,
+.player-count-table td.active {
+    color: #D72638;
+    font-weight: bold;
+}
+
+/* First header cell stays normal */
+.player-count-table th:first-child {
+    color: #D72638;
+    font-weight: bold;
+}
+
+/* Header cell layout: stack number and radio button vertically */
+.header-cell-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.header-number {
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+	color: #D72638;
+}
+.header-radio input {
+    transform: scale(1.2);
+}
+
+/* Link styling */
+a {
+    color: #D72638;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+/* Ensure life markers display in a single horizontal line across the screen */
+.lifemarkers-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    padding: 10px 0;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+/* Ensure player containers align items vertically */
+.player-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+.player-count-table {
+    table-layout: auto;
+    width: auto; /* Allows the table to adjust its width based on content */
+}
+
+/* Set size for life marker images */
+.player-status {
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+}
+/* Reduce spacing in player count table */
+.player-count-table th, .player-count-table td {
+    padding: 4px 8px; /* Reduce padding for tighter rows */
+    line-height: 1.2; /* Reduce default line-height */
+    width: auto; /* Allows it to be responsive */
+}
+
+/* Hide radio buttons but keep them functional */
+.player-count-table input[type="radio"] {
+    opacity: 0;
+    position: absolute;
+    width: 0;
+    height: 0;
+}
+
+/* Make column clickable to trigger radio button */
+.player-count-table th {
+    cursor: pointer;
+    width: auto; /* Allows it to be responsive */
+    margin: 0 auto; /* Centers it on the page */
+}
+
+.player-count-table th:hover {
+    background-color: rgba(215, 38, 56, 0.2); /* Light highlight on hover */
+}
+
+.player-count-table th:active {
+    background-color: rgba(215, 38, 56, 0.4);
+}
+
+#lockOverlay {
+    display: none; /* Initially hidden */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3); /* Slight dark transparency */
+    z-index: 9998; /* Behind lock button but above everything else */
+    pointer-events: auto; /* Block interactions */
+}
+
+/* When locked, block everything except LifeMarkers, Lock, Start, Stop */
+.locked #lockOverlay {
+    display: block;
+}
+
+/* Block Shuffle, +, and - buttons when locked */
+.locked .shuffle-button,
+.locked .plus-button,
+.locked .minus-button {
+    pointer-events: none;
+    opacity: 0.5; /* Make them look disabled */
+}
+
+/* Allow Start and Stop buttons to work */
+.locked #startButton,
+.locked #stopButton,
+.locked #lockButton,
+.locked .player-status-img,
+.locked .left-controls,
+.locked .right-controls {
+    z-index: 9999; /* Keep them on top */
+    pointer-events: auto;
+}
+/* Dark overlay to block interaction */
+#docOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9998;
+}
+
+/* Modal window */
+#docModal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid white;
+    text-align: center;
+    z-index: 9999;
+}
+
+/* Close button */
+#docModal button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background: red;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+/* Ensure left alignment and proper indentation for wrapped text */
+#docModal ul {
+    text-align: left; /* Left align text */
+    padding-left: 20px; /* Indentation for bullets */
+    list-style-position: outside; /* Ensures bullet is outside of text block */
+}
+
+#docModal ul li {
+    margin-bottom: 10px; /* Adds spacing between each bullet point */
+    line-height: 1.5; /* Improves readability */
+    padding-left: 20px; /* Aligns wrapped lines */
+    text-indent: -20px; /* Keeps wrapped text aligned with first line */
+}
+
+/* Dark overlay to block background interactions */
+#jsonOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9998;
+}
+
+/* JSON Upload Modal */
+#jsonModal {
+    display: none;
+    position: fixed;
+    font-size: 2rem;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 20px;
+    line-height: 2.5; /* Improves readability */
+    border-radius: 10px;
+    border: 2px solid white;
+    text-align: center;
+    z-index: 9999;
+}
+
+/* Buttons inside the modal */
+#jsonUploadButton{
+    margin-top: 10px;
+    padding: 5px 10px;
+    background: #4CAF50;	
+    font-size: 2rem;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+	
+#jsonModal button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background: red;	
+    font-size: 2rem;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+/* Close button */
+#jsonModal button:last-child {
+    background: red;
+}
+
+#jsonDisclaimer {
+    font-size: 12px;
+    color: #ffcc00; /* Yellow warning text */
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

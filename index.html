@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bi0ha2a7d's BOTC Display</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="assets/favicon-96x96.png" sizes="96x96" />
+  <link rel="manifest" href="assets/site.webmanifest" />
+</head>
+
+<body>
+	<!-- Transparent Lock Overlay (Initially Hidden) -->
+<div id="lockOverlay"></div>
+<!-- Clickable Logo -->
+
+
+<!-- Documentation Window (Initially Hidden) -->
+
+
+  <div id="header">
+    <img id="logo" src="assets/logo.png" alt="Game Logo" style="cursor: pointer;">
+    <div id="countdown" onclick="resetCountdown()">10:00</div>
+    <img src="assets/venue_logo.png" alt="Venue Logo" id="venueLogo">
+  </div>
+  <div id="jsonOverlay"></div>
+   <div id="container">
+    <div id="controls">
+      <div class="left-controls">
+        <input type="number" id="timeInput" min="1" value="10"> minutes
+        <button onclick="startCountdown()">Start</button>
+        <button onclick="stopCountdown()">Stop</button>
+		<button onclick="showJsonModal()">JSON</button>
+      </div>
+      <div class="right-controls">
+		<button onclick="showDocModal()">Help</button>
+        <button onclick="confirmReset()">Reset</button>
+        <button id="lockButton" onclick="toggleLock()">Lock</button>
+      </div>
+    </div>
+  <!-- Life markers will be created here -->
+  <div id="lifeMarkers" class="lifemarkers-row"></div>
+  
+  <!-- Player count table above the lists -->
+  <div id="playerCountTableContainer"></div>
+  
+  <div id="listsContainer">
+      <table id="fablesList" class="list-table"></table>
+      <table id="jinxList" class="list-table"></table>
+      <table id="travellersList" class="list-table"></table>
+  </div>
+  
+  <!-- Load scripts in the correct order -->
+  <script src="scripts/displayList.js" defer></script>
+  <script src="scripts/fables.js" defer></script>
+  <script src="scripts/travellers.js" defer></script>
+  <script src="scripts/jinxes.js" defer></script>
+  <script src="scripts/playercount2.js" defer></script>
+  <script src="scripts/lifemarker.js" defer></script>
+  <script>
+  
+function toggleLock(forceUnlock = false) {
+    isLocked = forceUnlock ? false : !isLocked;
+    document.getElementById("lockButton").textContent = isLocked ? "Unlock" : "Lock";
+
+    // ✅ Apply or remove the locked state
+    document.body.classList.toggle("locked", isLocked);
+
+    // ✅ Show or hide the overlay
+    document.getElementById("lockOverlay").style.display = isLocked ? "block" : "none";
+
+    if (window.pctInstance && typeof window.pctInstance.applyLockState === "function") {
+        window.pctInstance.applyLockState();
+    }
+
+    if (window.lm) {
+        window.lm.applyLockState();
+    }
+}
+
+// ✅ Ensure the page starts unlocked on load
+document.addEventListener("DOMContentLoaded", () => {
+    toggleLock(true); // Force unlock on page load
+});
+
+
+
+    
+    // Update Fables and Travellers rows based on lock state and checkbox state.
+    function updateLockStyles() {
+      ["fablesList", "travellersList"].forEach(containerId => {
+        const table = document.getElementById(containerId);
+        if (!table) return;
+        const rows = table.querySelectorAll("tr");
+        rows.forEach(row => {
+          const checkbox = row.querySelector("td input[type='checkbox']");
+          if (isLocked) {
+            if (checkbox && checkbox.checked) {
+              row.style.fontSize = "1.5rem";
+              row.style.opacity = "1";
+            } else {
+              row.style.fontSize = "0.8rem";
+              row.style.opacity = "0.5";
+            }
+          } else {
+            row.style.fontSize = "";
+            row.style.opacity = "";
+          }
+        });
+      });
+    }
+    
+    // Function to display a list for Fables and Travellers.
+    function displayList(containerId, list) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      list.forEach((item, index) => {
+        const row = document.createElement("tr");
+        row.className = `list-item ${index % 2 === 0 ? 'even' : 'odd'}`;
+        
+        const checkboxCell = document.createElement("td");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        // Initialize row style: when unchecked, row is grey and struck through.
+        row.style.color = "gray";
+        checkbox.addEventListener("change", () => {
+          row.style.color = checkbox.checked ? "#EDEDED" : "gray";
+          row.style.textDecoration = checkbox.checked ? "none" : "line-through";
+          if (isLocked) {
+            row.style.fontSize = checkbox.checked ? "1.5rem" : "0.8rem";
+            row.style.opacity = checkbox.checked ? "1" : "0.5";
+          }
+        });
+        checkboxCell.appendChild(checkbox);
+        
+        const nameCell = document.createElement("td");
+        nameCell.className = "name";
+        nameCell.textContent = item.name;
+        
+        const textCell = document.createElement("td");
+        textCell.className = "text";
+        textCell.textContent = item.text;
+        
+        row.appendChild(checkboxCell);
+        row.appendChild(nameCell);
+        row.appendChild(textCell);
+        container.appendChild(row);
+      });
+    }
+    
+function processJinxes(characterList) {
+    console.log("Processing Jinxes with:", characterList); // Debugging
+
+    const matchedJinxes = [];
+    const allJinxes = JinxList.getJinxes();
+
+    // Helper function: Remove spaces & special characters **from Jinx pairs only**
+    function normalizeName(name) {
+        return name.toLowerCase().replace(/[^a-z0-9]/g, ""); // Keep only letters & numbers
+    }
+
+    allJinxes.forEach(jinx => {
+        const char1 = normalizeName(jinx.pair[0]); // Clean Jinx name
+        const char2 = normalizeName(jinx.pair[1]); // Clean Jinx name
+
+        if (characterList.includes(char1) && characterList.includes(char2)) {
+            matchedJinxes.push(jinx);
+        }
+    });
+
+    console.log("Matched Jinxes:", matchedJinxes); // Debugging
+    JinxList.displayJinxes(matchedJinxes);
+}
+
+
+    
+    // Timer functions
+    let timeLeft = 600;
+    let countdownInterval;
+    let isRunning = false;
+    const alarmSound = document.getElementById("alarmSound");
+    
+    function updateCountdown() {
+      let minutes = Math.floor(timeLeft / 60);
+      let seconds = timeLeft % 60;
+      document.getElementById("countdown").textContent =
+        `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      if (timeLeft > 0 && isRunning) {
+        timeLeft--;
+        countdownInterval = setTimeout(updateCountdown, 1000);
+      } else if (timeLeft === 0) {
+        alarmSound.play();
+      }
+    }
+    
+    function startCountdown() {
+      if (!isRunning) {
+        isRunning = true;
+        updateCountdown();
+      }
+    }
+    
+    function stopCountdown() {
+      isRunning = false;
+      clearTimeout(countdownInterval);
+    }
+    
+    // Reset function: warns the user and reloads the page if confirmed.
+    function confirmReset() {
+      if (confirm("This will remove all choices. Are you sure you want to reset?")) {
+        window.location.reload();
+      }
+    }
+    
+document.getElementById("jsonUpload").addEventListener("change", function(event) {
+    const file = event.target.files[0];
+    if (!file) return; // Stop if no file is selected
+
+    document.getElementById("listsContainer").style.display = "flex";
+
+    // Read JSON file
+    const reader = new FileReader();
+reader.onload = function(event) {
+    try {
+        const jsonData = JSON.parse(event.target.result);
+        console.log("Loaded JSON Data:", jsonData); // Debugging
+
+        // Check if data is an array or an object with 'characters' key
+        let characterList = [];
+        if (Array.isArray(jsonData)) {
+            characterList = jsonData; // JSON is an array
+        } else if (jsonData.characters) {
+            characterList = jsonData.characters; // JSON has 'characters' key
+        } else {
+            console.warn("Invalid JSON format: No character list found!");
+            return;
+        }
+
+        console.log("Characters Extracted:", characterList); // Debugging
+        processJinxes(characterList); // Pass character list to processJinxes()
+    } catch (error) {
+        console.error("Invalid JSON format:", error);
+    }
+};
+
+    reader.readAsText(file); // Read file as text
+});
+    
+    document.addEventListener("DOMContentLoaded", () => {
+      displayList("fablesList", fablesList);
+      displayList("travellersList", travellersList);
+      const pct = new PlayerCountTable("playerCountTableContainer");
+      window.pctInstance = pct;
+      pct.render();
+    });
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof displayList === "function") {
+        displayList("fablesList", fablesList);
+        displayList("travellersList", travellersList);
+      } else {
+        console.error("displayList function is not defined");
+      }
+      
+      const pct = new PlayerCountTable("playerCountTableContainer");
+      pct.render();
+      window.pctInstance = pct;
+      
+      const lm = new LifeMarkers("lifeMarkers");
+      lm.updateMarkers(10); // Default setup
+    });
+  </script>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+    window.lm = new LifeMarkers("lifeMarkers");
+    window.lm.updateMarkers(5);
+    
+    const dropdown = document.getElementById("playerCountDropdown");
+    if (dropdown) {
+        dropdown.addEventListener("change", (event) => {
+            const newCount = parseInt(event.target.value, 10);
+            window.lm.updateMarkers(newCount);
+        });
+    }
+});
+</script>
+<!-- Documentation Modal (Initially Hidden) -->
+<div id="docOverlay"></div>
+<div id="docModal">
+    <h2>Game Documentation</h2>
+    <p>For support, contact: <a href="mailto:admin@bi0ha2a7d.co.uk">admin@bi0ha2a7d.co.uk</a></p>
+    <ul>
+        <li>Clicking a life token cycles through: Alive, Dead with Vote, Dead without Vote.</li>
+		
+        <li>Travellers have a unique life token appearance.</li>
+		
+        <li>Clicking `+` adds a new player.</li>
+		
+        <li>Clicking `-` opens a removal modal.</li>
+		
+        <li>The Lock button prevents accidental changes.</li>
+		<li>Travellers don't affect player count.</li>
+    </ul>
+    <button onclick="hideDocModal()">Close</button>
+</div>
+<div id="jsonModal">
+    <h2>Upload JSON File</h2>
+	<p> Please use valid JSON's from either <a href="https://botcscripts.com/" target="_blank">https://botcscripts.com/</a> <br> or the Official Script Tool: <br> <a href="https://script.bloodontheclocktower.com/" target="_blank">https://script.bloodontheclocktower.com/</a></p>
+    <input id="jsonUploadButton" type="file" id="jsonUpload" accept=".json">
+    <br><br>
+    <button onclick="processJsonFile()">Upload</button>
+    <button onclick="hideJsonModal()">Close</button>
+	<<p id="jsonDisclaimer">⚠️ Uploaded JSON is not saved and will be lost if the page is refreshed.</p>
+</div>
+
+  <div style="text-align: center; color: #D72638; font-size: 0.8rem; margin-top: 20px;">
+  <strong>Data Collection Practices / No Cookies Used</strong>
+  <br>
+We want to ensure complete transparency regarding our data collection practices. We do not use cookies or any other tracking technologies to collect personal information about our website visitors. As a result, we do not collect any data from cookies or similar technologies.
+<br>
+We do collect general server logs, which contain information such as IP address and browser type. This data is used solely for website administration, maintenance and to prevent unauthorized access. This data is stored securely and not used for any marketing purposes or for sharing with third parties.
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const logo = document.getElementById("logo");
+    
+    if (logo) {
+        logo.addEventListener("click", showDocModal);
+    } else {
+        console.error("Error: Logo not found!");
+    }
+});
+
+// ✅ Function to show the documentation modal
+function showDocModal() {
+    console.log("Opening documentation modal...");
+    document.getElementById("docOverlay").style.display = "block";
+    document.getElementById("docModal").style.display = "block";
+}
+
+// ✅ Function to hide the documentation modal
+function hideDocModal() {
+    console.log("Closing documentation modal...");
+    document.getElementById("docOverlay").style.display = "none";
+    document.getElementById("docModal").style.display = "none";
+}
+</script>
+<script>
+// Show the JSON Upload Modal
+function showJsonModal() {
+    console.log("Opening JSON upload modal...");
+    document.getElementById("jsonOverlay").style.display = "block";
+    document.getElementById("jsonModal").style.display = "block";
+}
+
+// Hide the JSON Upload Modal
+function hideJsonModal() {
+    console.log("Closing JSON upload modal...");
+    document.getElementById("jsonOverlay").style.display = "none";
+    document.getElementById("jsonModal").style.display = "none";
+}
+
+// Process the JSON file after upload
+function processJsonFile() {
+    const fileInput = document.getElementById("jsonUpload");
+    if (fileInput.files.length === 0) {
+        alert("Please select a JSON file.");
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+        try {
+            const jsonData = JSON.parse(event.target.result);
+            console.log("Loaded JSON Data:", jsonData);
+            alert("JSON file loaded successfully!");
+
+            // ✅ Add your processing function here if needed:
+            // processJinxes(jsonData);  // Example function
+
+            hideJsonModal(); // Close the modal after processing
+        } catch (error) {
+            console.error("Error parsing JSON file:", error);
+            alert("Invalid JSON format. Please upload a valid file.");
+        }
+    };
+
+    reader.readAsText(file);
+}
+</Script>
+</body>
+</html>
